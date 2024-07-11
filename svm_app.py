@@ -2,16 +2,27 @@ import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
+import pickle
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import make_scorer
 
-# Custom class or function imports (if any)
-# from your_module import CustomClass
+# Custom Unpickler to handle missing attributes
+class CustomUnpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if name == '_PredictScorer':
+            from sklearn.metrics._scorer import _PredictScorer
+            return _PredictScorer
+        return super().find_class(module, name)
 
-# Load the trained model
+def custom_load(file):
+    with open(file, 'rb') as f:
+        return CustomUnpickler(f).load()
+
+# Load the trained model using custom unpickler
 model_filename = 'svm_model2.pkl'
 
 try:
-    model = joblib.load(model_filename)
+    model = custom_load(model_filename)
 except AttributeError as e:
     st.error(f"Error loading model: {e}")
     st.stop()
@@ -27,7 +38,6 @@ label_encoders = {
 # Dummy scaler data (mean and std from the training dataset)
 scaler_means = [0.5, 17, 0.5, 2.5, 2.5, 2, 2.5, 2.5, 0.5, 0.5, 5, 10, 10, 1.5, 2.5]
 scaler_stds = [0.5, 1.5, 0.5, 1.5, 1.5, 1.5, 1.1, 0.8, 0.7, 0.5, 8.5, 5.5, 5.5, 0.7, 0.8]
-
 # Define the input fields for the selected features
 st.title('Student Performance Prediction')
 
