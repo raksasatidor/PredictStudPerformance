@@ -5,7 +5,11 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 # Load the trained model
-model = joblib.load("svm_model2.pkl")
+try:
+    model = joblib.load("svm_model2.pkl")
+except FileNotFoundError:
+    st.error("The model file was not found. Please ensure that 'svm_model2.pkl' is in the correct directory.")
+    st.stop()
 
 # Label encoders for the categorical features (based on the training data)
 label_encoders = {
@@ -16,8 +20,8 @@ label_encoders = {
 }
 
 # Dummy scaler data (mean and std from the training dataset)
-scaler_means = [0.5, 17, 0.5, 2.5, 2.5, 2, 2.5, 2.5, 0.5, 0.5, 5, 10, 10, 1.5, 2.5]
-scaler_stds = [0.5, 1.5, 0.5, 1.5, 1.5, 1.5, 1.1, 0.8, 0.7, 0.5, 8.5, 5.5, 5.5, 0.7, 0.8]
+scaler_means = np.array([0.5, 17, 0.5, 2.5, 2.5, 2, 2.5, 2.5, 0.5, 0.5, 5, 10, 10, 1.5, 2.5])
+scaler_stds = np.array([0.5, 1.5, 0.5, 1.5, 1.5, 1.5, 1.1, 0.8, 0.7, 0.5, 8.5, 5.5, 5.5, 0.7, 0.8])
 
 # Define the input fields for the selected features
 st.title('Student Performance Prediction')
@@ -31,13 +35,13 @@ age = st.selectbox('Age', list(range(15, 23)))
 address = st.selectbox('Address', ['Rural', 'Urban'])
 address = label_encoders['address'][address[0].upper()]
 
-Medu = st.selectbox('Mother\'s Education', ['None', 'Primary Education', '5th to 9th', 'Secondary Education', 'Higher Education'])
+Medu = st.selectbox("Mother's Education", ['None', 'Primary Education', '5th to 9th', 'Secondary Education', 'Higher Education'])
 Medu = ['None', 'Primary Education', '5th to 9th', 'Secondary Education', 'Higher Education'].index(Medu)
 
-Fedu = st.selectbox('Father\'s Education', ['None', 'Primary Education', '5th to 9th', 'Secondary Education', 'Higher Education'])
+Fedu = st.selectbox("Father's Education", ['None', 'Primary Education', '5th to 9th', 'Secondary Education', 'Higher Education'])
 Fedu = ['None', 'Primary Education', '5th to 9th', 'Secondary Education', 'Higher Education'].index(Fedu)
 
-Mjob = st.selectbox('Mother\'s Job', ['at_home', 'health', 'other', 'services', 'teacher'])
+Mjob = st.selectbox("Mother's Job", ['at_home', 'health', 'other', 'services', 'teacher'])
 Mjob = label_encoders['Mjob'][Mjob]
 
 traveltime = st.selectbox('Travel Time', [1, 2, 3, 4])
@@ -54,7 +58,6 @@ G2 = st.selectbox('Mid-year exam grades (G2)', list(range(0, 21)))
 
 Dalc = st.selectbox('Weekday Alcohol consumption', list(range(1, 6)))
 Walc = st.selectbox('Weekend Alcohol consumption', list(range(1, 6)))
-
 
 # Create a submit button
 if st.button('Submit'):
