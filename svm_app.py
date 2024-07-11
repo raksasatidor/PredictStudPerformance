@@ -4,9 +4,17 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
+# Custom class or function imports (if any)
+# from your_module import CustomClass
+
 # Load the trained model
 model_filename = 'svm_model2.pkl'
-model = joblib.load(model_filename)
+
+try:
+    model = joblib.load(model_filename)
+except AttributeError as e:
+    st.error(f"Error loading model: {e}")
+    st.stop()
 
 # Label encoders for the categorical features (based on the training data)
 label_encoders = {
@@ -56,7 +64,6 @@ G2 = st.selectbox('Mid-year exam grades (G2)', list(range(0, 21)))
 Dalc = st.selectbox('Weekday Alcohol consumption', list(range(1, 6)))
 Walc = st.selectbox('Weekend Alcohol consumption', list(range(1, 6)))
 
-
 # Create a submit button
 if st.button('Submit'):
     # Predict the result
@@ -65,10 +72,12 @@ if st.button('Submit'):
     # Normalize the input features using the dummy mean and std from training
     input_features = (input_features - scaler_means) / scaler_stds
     
-    prediction = model.predict(input_features)
+    try:
+        prediction = model.predict(input_features)
+        # Map prediction to category
+        prediction_label = {0: 'Weak', 1: 'Good', 2: 'Excellent'}
+        predicted_category = prediction_label[prediction[0]]
 
-    # Map prediction to category
-    prediction_label = {0: 'Weak', 1: 'Good', 2: 'Excellent'}
-    predicted_category = prediction_label[prediction[0]]
-
-    st.write(f'Your student performance is: **{predicted_category}**')
+        st.write(f'Your student performance is: **{predicted_category}**')
+    except Exception as e:
+        st.error(f"Error making prediction: {e}")
