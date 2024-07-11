@@ -5,8 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 # Load the trained model
-model_filename = (r"svm_model2.pkl")
-model = joblib.load(model_filename)
+model = joblib.load("svm_model2.pkl")
 
 # Label encoders for the categorical features (based on the training data)
 label_encoders = {
