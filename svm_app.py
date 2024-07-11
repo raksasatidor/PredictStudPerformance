@@ -5,7 +5,20 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 # Load the trained model
-model = joblib.load("svm_model2.pkl")
+model_filename = 'svm_model2.pkl'
+model = joblib.load(model_filename)
+
+# Label encoders for the categorical features (based on the training data)
+label_encoders = {
+    'school': {'GP': 0, 'MS': 1},
+    'address': {'R': 0, 'U': 1},
+    'Mjob': {'at_home': 0, 'health': 1, 'other': 2, 'services': 3, 'teacher': 4},
+    'higher': {'no': 0, 'yes': 1}
+}
+
+# Dummy scaler data (mean and std from the training dataset)
+scaler_means = [0.5, 17, 0.5, 2.5, 2.5, 2, 2.5, 2.5, 0.5, 0.5, 5, 10, 10, 1.5, 2.5]
+scaler_stds = [0.5, 1.5, 0.5, 1.5, 1.5, 1.5, 1.1, 0.8, 0.7, 0.5, 8.5, 5.5, 5.5, 0.7, 0.8]
 
 # Define the input fields for the selected features
 st.title('Student Performance Prediction')
@@ -48,7 +61,9 @@ Walc = st.selectbox('Weekend Alcohol consumption', list(range(1, 6)))
 if st.button('Submit'):
     # Predict the result
     input_features = np.array([school, age, address, Medu, Fedu, Mjob, traveltime, studytime, failures, higher, absences, G1, G2, Dalc, Walc]).reshape(1, -1)
-
+    
+    # Normalize the input features using the dummy mean and std from training
+    input_features = (input_features - scaler_means) / scaler_stds
     
     prediction = model.predict(input_features)
 
